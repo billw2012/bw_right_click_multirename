@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<content id="bw_right_click_multirename" name="BW Rightclick Multirename" author="BW" version="100" date="2023-04-25" save="false" sync="false" enabled="true" description="Adds a Auto Rename option to the right click menu that clears the ships orders and sets its default order to MultiRename.">
+  <dependency id="ws_1908520094" optional="false"/> <!-- JP_MultiRename -->
+</content>

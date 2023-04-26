@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mdscript name="BWRightClickMultirename"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../extracted/libraries/md.xsd">
+  <cues>
+    <!-- adding right click multi rename option -->
+    <cue name="AddInteractActions">
+      <conditions>
+        <event_cue_signalled cue="md.Interact_Menu_API.Get_Actions"/>
+      </conditions>
+      <actions>
+        <set_value name="$interact_ships" exact="@event.param.$selectedplayerships" />
+				<do_if value="typeof ($interact_ships) != datatype.list">
+					<set_value name="$interact_ships" exact="[]" />
+				</do_if>
+				<set_value name="$interact_target" exact="@event.param.$object" />
+				<do_if value="$interact_target.isplayerowned">
+					<append_to_list name="$interact_ships" exact="$interact_target" />
+				</do_if>
+        <set_value name="$sections" exact="[]" />
+				<do_if value="$interact_ships.count == 1 and $interact_ships.{1} == $interact_target">
+					<append_to_list name="$sections" exact="'main_orders'" />
+				</do_if>
+				<do_elseif value="@$interact_ships.count">
+					<do_if value="(not $interact_target.isplayerowned) or (not $interact_target.isclass.ship)">
+						<append_to_list name="$sections" exact="'selected_orders'" />
+					</do_if>
+					<do_else>
+						<append_to_list name="$sections" exact="'selected_orders_all'" />
+					</do_else>
+				</do_elseif>
+        <do_for_each name="$section" in="$sections">
+          <signal_cue_instantly cue="md.Interact_Menu_API.Add_Action" param="table[
+              $id = 'bw_tweaks_rename_' + $section, 
+              $section = $section, 
+              $text = 'Auto Rename', 
+              $callback = RenameCall
+              ]"/>
+        </do_for_each>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <cue name="RenameCall" namespace="this">
+      <conditions>
+        <event_cue_signalled/>
+      </conditions>
+      <actions>
+        <set_value name="$interact_ships" exact="@event.param.$selectedplayerships" />
+				<do_if value="typeof ($interact_ships) != datatype.list">
+					<set_value name="$interact_ships" exact="[]" />
+				</do_if>
+				<set_value name="$interact_target" exact="@event.param.$object" />
+				<do_if value="$interact_target.isplayerowned and (not $interact_ships.indexof.{$interact_target})">
+					<append_to_list name="$interact_ships" exact="$interact_target" />
+				</do_if>
+        <do_for_each name="$ship" in="$interact_ships">
+          <cancel_all_orders object="$ship"/>
+          <create_order object="$ship" id="'JP_MultiRename'" default="true"/>
+        </do_for_each>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
